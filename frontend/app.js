@@ -1004,7 +1004,7 @@ function adaptiveTile() {
 function drawAdaptive() { if ($("ad-tile")) $("ad-tile").innerHTML = adaptiveTile(); }
 
 // ================================================================ account + theme
-const SYNCED = ["profile", "auto", "theme"];          // settings saved to the user's account
+const SYNCED = ["profile", "auto", "theme", "places", "lastRul", "lastAnomaly"];   // saved to the user's account (same on every device)
 let account = null, prefsTimer = null;
 function savePrefsSoon() {
   if (!account) return;
@@ -1099,6 +1099,15 @@ async function boot() {
 // ================================================================ startup
 function init() {
   if (typeof Chart !== "undefined") chartTheme();
+  // the places searched on each page follow the account to other devices
+  const places = store.get("places", {});
+  ["sd-q", "ps-q", "st-q", "pl-q"].forEach((id) => {
+    if (places[id] && !$(id).value) $(id).value = places[id];
+    $(id).addEventListener("change", () => {
+      const v = $(id).value.trim();
+      if (v && v !== "Your current location") store.set("places", { ...store.get("places", {}), [id]: v });
+    });
+  });
   setupVehicleForm($("rul-form")); setupVehicleForm($("an-form")); setupVehicleForm($("pl-form"));
   try { viewer3d = window.Vehicle3D ? Vehicle3D.mount($("rul-3d"), () => ({ type: profile.vehicle_type, name: profile.vehicle_name })) : null; }
   catch (err) { viewer3d = null; }

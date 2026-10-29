@@ -167,7 +167,7 @@ def set_preferences(user_id, updates):
         raise AuthError("Preferences must be an object.")
     if "theme" in updates and updates["theme"] not in THEMES:
         raise AuthError("Theme must be system, light or dark.")
-    allowed = {"theme", "profile", "auto"}
+    allowed = {"theme", "profile", "auto", "places", "lastRul", "lastAnomaly"}
     with _lock, _conn() as c:
         row = c.execute("SELECT preferences FROM users WHERE id = ?", (user_id,)).fetchone()
         prefs = json.loads(row["preferences"] or "{}") if row else {}
