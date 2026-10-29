@@ -97,6 +97,19 @@ versions in `backend/requirements.txt`, and `.gitignore` (keeps `.env`, `.venv` 
 3. After the build (~5 min) the app is at `https://ev-energy-management.onrender.com` (or the name Render shows).
 4. Updates: `git add . && git commit -m "update" && git push` – Render redeploys automatically.
 
+**Keep accounts and readings online (free PostgreSQL).** Render's free plan wipes files on every restart and after
+15 minutes of sleep, which would erase accounts. Set `DATABASE_URL` and the app stores accounts, sessions, battery
+readings, trips, driver reports and adaptive-learning readings in PostgreSQL instead (`backend/app/db.py`; without it,
+the local SQLite file is used as before):
+1. neon.tech → sign up (free, no card) → create a project (region: Asia Pacific / Singapore) → copy the
+   **connection string** (`postgresql://…?sslmode=require`).
+2. Render → the service → **Environment** → add `DATABASE_URL` = that string → Save (the app restarts and creates
+   its tables by itself).
+
+Demo login that always works: in Render → the service → **Environment**, add `DEMO_EMAIL` and `DEMO_PASSWORD`
+(8+ characters; optional `DEMO_NAME`) → Save. The app creates that account on every start, so it works on any device
+even after the free plan wipes the database.
+
 Free-plan behaviour: the service sleeps after 15 min without visits (first visit then takes ~50 s); the SQLite
 database (accounts, readings, driver reports) starts empty after each restart or deploy. Demo reports against the
 online app: `python -m training.demo_reports --url https://<your-app>.onrender.com "Madhapur, Hyderabad"`.
@@ -356,7 +369,7 @@ Model evaluations, rules and limitations that used to be shown on the pages are 
 ```bash
 cd backend && source .venv/bin/activate
 pip install pytest
-python -m pytest -q          # 25 tests, ~3 s, temporary database (app data untouched)
+python -m pytest -q          # 26 tests, ~3 s, temporary database (app data untouched)
 ```
 They check the project's rules: SOC does not change RUL; more driving means less life left; all vehicle types; the
 pricing formula; the queueing model; connector compatibility; the station filter (residential / private / dealership /

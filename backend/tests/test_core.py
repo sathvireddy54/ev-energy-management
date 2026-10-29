@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from app import db as app_db
 from app import (adaptive_service, auth_service, checkin_service, history_service, ocpp_service, osm_service,
                  station_demand_service as sds, station_filter, tariff_service)
 from app.pricing_service import quote
@@ -26,6 +27,10 @@ def temp_db(tmp_path):
         m.DB = db
     adaptive_service._cache["dirty"] = True
     auth_service._fails.clear()
+    if app_db.using_postgres():          # DATABASE_URL set: start each test from empty tables
+        with app_db.connect(None) as c:
+            c.execute("DROP TABLE IF EXISTS users, sessions, readings, trips, checkins, observations, station_meta, meta")
+        app_db._ddl_done.clear()
     yield db
     for m, d in old.items():
         m.DB = d
@@ -114,12 +119,20 @@ def test_merge_keeps_different_networks_at_one_site():
 # ------------------------------------------------------------------ 5. accounts and per-user data
 def test_passwords_are_hashed_and_checked(temp_db):
     user = auth_service.register("a@example.com", "A", "correct-horse-1")
-    import sqlite3
-    row = sqlite3.connect(temp_db).execute("SELECT pw_hash FROM users WHERE id = ?", (user["id"],)).fetchone()
+    with app_db.connect(temp_db) as c:
+        row = c.execute("SELECT pw_hash FROM users WHERE id = ?", (user["id"],)).fetchone()
     assert "correct-horse-1" not in row[0]
     auth_service.login("a@example.com", "correct-horse-1")
     with pytest.raises(auth_service.AuthError):
         auth_service.login("a@example.com", "wrong-password")
+
+
+def test_demo_account_survives_and_keeps_its_password(temp_db):
+    assert auth_service.ensure_account("demo@example.com", "Demo", "demo-pass-1")
+    auth_service.login("demo@example.com", "demo-pass-1")
+    assert auth_service.ensure_account("demo@example.com", "Demo", "demo-pass-2")   # second start: same account
+    auth_service.login("demo@example.com", "demo-pass-2")
+    assert auth_service.ensure_account("not-an-email", "Demo", "demo-pass-1") is None
 
 
 def test_login_paused_after_five_wrong_passwords(temp_db):

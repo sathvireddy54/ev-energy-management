@@ -15,12 +15,13 @@ import hmac
 import json
 import re
 import secrets
-import sqlite3
+import sqlite3  # noqa: F401  (local file when DATABASE_URL is not set - see db.py)
 import threading
 import time
 from contextvars import ContextVar
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from . import db
 
 DB = Path(__file__).resolve().parent.parent / "data" / "records.db"
 COOKIE = "evem_session"
@@ -43,8 +44,7 @@ def _now():
 
 
 def _conn():
-    c = sqlite3.connect(DB)
-    c.row_factory = sqlite3.Row
+    c = db.connect(DB)
     c.execute("""CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE NOT NULL, name TEXT, pw_hash TEXT NOT NULL,
         salt TEXT NOT NULL, created_utc TEXT NOT NULL, preferences TEXT DEFAULT '{}')""")
@@ -93,6 +93,22 @@ def register(email, name, password):
                         (email, name, _hash(password, salt), salt, _now().isoformat()))
         row = c.execute("SELECT * FROM users WHERE id = ?", (cur.lastrowid,)).fetchone()
     return _public(row)
+
+
+def ensure_account(email, name, password):
+    """Make sure this account exists with this password (used for the demo account on a host whose database is
+    wiped on every restart). Returns the account, or None when the details are not usable."""
+    email = (email or "").strip().lower()
+    if not EMAIL.match(email) or len(password or "") < 8:
+        return None
+    try:
+        return register(email, name or "Demo", password)
+    except AuthError:                                  # already there: keep it, with this password
+        salt = secrets.token_hex(16)
+        with _lock, _conn() as c:
+            c.execute("UPDATE users SET pw_hash = ?, salt = ? WHERE email = ?", (_hash(password, salt), salt, email))
+            row = c.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        return _public(row) if row else None
 
 
 def login(email, password):

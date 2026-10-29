@@ -9,9 +9,10 @@ Readings belong to the logged-in user's account (auth_service); the vehicle id s
 by the account's own id, so no user can read another user's readings.
 Stored in a local SQLite file (data/records.db).
 """
-import sqlite3
+import sqlite3  # noqa: F401  (local file when DATABASE_URL is not set - see db.py)
 from datetime import date
 from pathlib import Path
+from . import db
 
 DB = Path(__file__).resolve().parent.parent / "data" / "records.db"
 
@@ -35,8 +36,7 @@ def reassign(old_vehicle_id, new_vehicle_id):
 
 
 def _conn():
-    c = sqlite3.connect(DB)
-    c.row_factory = sqlite3.Row
+    c = db.connect(DB)
     c.execute("""CREATE TABLE IF NOT EXISTS readings (
         id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle_id TEXT NOT NULL, reading_date TEXT NOT NULL,
         odometer_km REAL NOT NULL, soc_pct REAL NOT NULL, range_km REAL NOT NULL,

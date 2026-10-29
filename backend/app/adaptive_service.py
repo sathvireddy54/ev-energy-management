@@ -21,7 +21,7 @@ observed there - the estimates keep improving as live data comes in, also for ho
 Evaluation: observations are split by time (first 80 % learn, last 20 % test) and the error of the plain
 model is compared with the calibrated one.
 """
-import sqlite3
+import sqlite3  # noqa: F401  (local file when DATABASE_URL is not set - see db.py)
 import threading
 import time
 from datetime import datetime, timezone
@@ -29,6 +29,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from app import station_demand_service as sds
+from . import db
 
 DB = Path(__file__).resolve().parent.parent / "data" / "records.db"
 K = 6.0
@@ -40,8 +41,7 @@ _cache = {"at": 0.0, "dirty": True, "cal": {}}
 
 
 def _conn():
-    c = sqlite3.connect(DB)
-    c.row_factory = sqlite3.Row
+    c = db.connect(DB)
     c.execute("""CREATE TABLE IF NOT EXISTS observations (
         id INTEGER PRIMARY KEY AUTOINCREMENT, station_id TEXT NOT NULL, ts_utc TEXT NOT NULL, local_date TEXT,
         weekday INTEGER, hour INTEGER, source TEXT, points INTEGER, busy REAL, out_of_service INTEGER,

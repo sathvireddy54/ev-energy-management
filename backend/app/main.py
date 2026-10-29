@@ -56,6 +56,11 @@ async def lifespan(_app):
             warm()
         except Exception as exc:          # the status endpoint reports what failed
             print(f"Warm-up failed: {exc}")
+    # demo account (DEMO_EMAIL / DEMO_PASSWORD in the environment): exists after every restart, so the same login
+    # works on any device even where the database is wiped on restart (free hosting)
+    if os.getenv("DEMO_EMAIL") and os.getenv("DEMO_PASSWORD"):
+        acct = auth_service.ensure_account(os.getenv("DEMO_EMAIL"), os.getenv("DEMO_NAME") or "Demo", os.getenv("DEMO_PASSWORD"))
+        print("Demo account ready." if acct else "Demo account not created: DEMO_EMAIL must be an email, DEMO_PASSWORD 8+ characters.")
     # every charger heartbeat (OCPP) is a live reading for adaptive learning
     ocpp_service.reset_connections()
     sim_network.start()              # built-in simulated charger network (SIMULATE_CHARGERS=0 in .env to switch off)

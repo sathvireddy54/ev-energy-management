@@ -12,9 +12,10 @@ agreeing recent reports is shown. Older reports (up to 24 h) are shown for infor
 The live summary uses the same shape as the Google live data, so demand, waiting time and price use it
 in the same way.
 """
-import sqlite3
+import sqlite3  # noqa: F401  (local file when DATABASE_URL is not set - see db.py)
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from . import db
 
 DB = Path(__file__).resolve().parent.parent / "data" / "records.db"
 LIVE_MINUTES = 45
@@ -23,8 +24,7 @@ STATUSES = {"free": "Points free", "busy": "All points busy", "queue": "Queue", 
 
 
 def _conn():
-    c = sqlite3.connect(DB)
-    c.row_factory = sqlite3.Row
+    c = db.connect(DB)
     c.execute("""CREATE TABLE IF NOT EXISTS checkins (
         id INTEGER PRIMARY KEY AUTOINCREMENT, station_id TEXT NOT NULL, station_name TEXT,
         latitude REAL, longitude REAL, created_utc TEXT NOT NULL, status TEXT NOT NULL,

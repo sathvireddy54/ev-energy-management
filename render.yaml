@@ -15,3 +15,9 @@ services:
         sync: false          # Render asks for the value when the service is created
       - key: TOMTOM_API_KEY
         sync: false
+      - key: DATABASE_URL        # PostgreSQL (e.g. free Neon) - keeps accounts and readings across restarts
+        sync: false
+      - key: DEMO_EMAIL          # optional: a login that survives restarts (see README)
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
