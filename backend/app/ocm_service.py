@@ -60,7 +60,47 @@ def _validate_search_options(distance_km, max_results):
     return distance_km, max_results
 
 
+TOMTOM_GEOCODE_URL = "https://api.tomtom.com/search/2/geocode/{q}.json"
+
+
+def _tomtom_geocode(query):
+    """Second geocoder (TomTom, same free key as the stations) - used when OpenStreetMap's public geocoder is busy
+    or blocks the server (it limits shared cloud servers). Returns results in the same shape as Nominatim's."""
+    key = (os.getenv("TOMTOM_API_KEY") or "").strip()
+    if not key:
+        return None
+    try:
+        r = requests.get(TOMTOM_GEOCODE_URL.format(q=requests.utils.quote(query, safe="")),
+                         params={"key": key, "countrySet": "IN", "limit": 5, "language": "en-GB"}, timeout=10)
+        r.raise_for_status()
+        out = []
+        for x in r.json().get("results") or []:
+            pos, adr = x.get("position") or {}, x.get("address") or {}
+            if pos.get("lat") is None:
+                continue
+            name = (adr.get("municipalitySubdivision") or adr.get("municipality") or adr.get("freeformAddress") or query)
+            out.append({"lat": pos["lat"], "lon": pos["lon"], "name": name,
+                        "display_name": adr.get("freeformAddress") or name, "importance": x.get("score", 0) / 10})
+        return out
+    except (requests.RequestException, ValueError):
+        return None
+
+
 def _geocode_request(query):
+    try:
+        result = _nominatim_request(query)
+    except LocationSearchError:
+        result = None
+    if not result:                                   # busy, blocked or nothing found: ask TomTom
+        tt = _tomtom_geocode(query)
+        if tt is not None:
+            return tt
+        if result is None:
+            raise LocationSearchError("Location search is temporarily unavailable. Please try again in a moment.")
+    return result
+
+
+def _nominatim_request(query):
     global _last_geocode_request
 
     # Serialize requests and leave at least one second between them.
@@ -81,7 +121,7 @@ def _geocode_request(query):
                     "accept-language": "en",
                 },
                 headers=HEADERS,
-                timeout=15,
+                timeout=8,
             )
             _last_geocode_request = time.monotonic()
             response.raise_for_status()
