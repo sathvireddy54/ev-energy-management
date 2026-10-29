@@ -1,0 +1,42 @@
+{
+  "dataset": "City of Palo Alto EV charging sessions (ChargePoint), 2011-2020",
+  "sessions": 259415,
+  "days": 3444,
+  "test_period": [
+    "2019-02-13",
+    "2020-12-31"
+  ],
+  "random_forest": {
+    "mae_sessions": 10.4,
+    "rmse_sessions": 15.28,
+    "r2": 0.917
+  },
+  "baseline_same_as_yesterday": {
+    "mae_sessions": 14.31,
+    "rmse_sessions": 20.27,
+    "r2": 0.854
+  },
+  "baseline_same_as_last_week": {
+    "mae_sessions": 13.59,
+    "rmse_sessions": 22.65,
+    "r2": 0.817
+  },
+  "hourly_profile_year": 2019,
+  "horizon_days": 7,
+  "mae_by_horizon_day": [
+    10.43,
+    11.28,
+    11.63,
+    12.16,
+    12.21,
+    12.35,
+    12.43
+  ],
+  "horizon_note": "Recursive forecast: each predicted day becomes the lag for the next. Same-as-last-week baseline MAE 13.59.",
+  "demand_levels": {
+    "low_below": 123.0,
+    "high_above": 144.0,
+    "basis": "tertiles of daily sessions in 2019"
+  },
+  "covid_note": "Demand fell sharply from March 2020 (COVID-19); the test period includes this drop."
+}

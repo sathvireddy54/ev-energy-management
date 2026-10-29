@@ -1,0 +1,39 @@
+{
+  "days": 14,
+  "readings": 8064,
+  "stations": [
+    {
+      "station": "S1",
+      "true_factor": 2.0,
+      "learned_factor": 1.959,
+      "readings": 2016
+    },
+    {
+      "station": "S2",
+      "true_factor": 0.5,
+      "learned_factor": 0.511,
+      "readings": 2016
+    },
+    {
+      "station": "S3",
+      "true_factor": 1.0,
+      "learned_factor": 1.089,
+      "readings": 2016
+    },
+    {
+      "station": "S4",
+      "true_factor": 1.5,
+      "learned_factor": 1.51,
+      "readings": 2016
+    }
+  ],
+  "evaluation": {
+    "train_readings": 6451,
+    "test_readings": 1613,
+    "test_station_hours": 272,
+    "mae_model_pct": 7.4,
+    "mae_calibrated_pct": 6.01,
+    "improvement_pct": 18.8,
+    "note": "Average error in the share of a station's points in use per station-hour, on the latest 20 % of readings - learned from the earlier 80 % only."
+  }
+}

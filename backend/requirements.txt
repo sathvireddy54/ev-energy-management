@@ -1,0 +1,17 @@
+# exact versions (the ones the models were trained with) so a server install matches the local one
+fastapi==0.151.0
+starlette==1.9.0
+uvicorn==0.54.0
+pydantic==2.14.1
+pydantic-core==2.50.1
+pandas==3.0.6
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+openpyxl==3.1.5
+matplotlib==3.11.2
+requests==2.34.2
+python-dotenv==1.2.4
+websockets==17.3
+pytest==9.2.0

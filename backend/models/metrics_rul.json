@@ -1,0 +1,76 @@
+{
+  "nasa_beta_per_cell": {
+    "B0005": 1.441,
+    "B0006": 0.933,
+    "B0018": 0.96
+  },
+  "beta_used_median_nasa": 0.96,
+  "beta_if_fitted_on_real_cars": 0.504,
+  "fleet_params": {
+    "a": 1.324,
+    "alpha": 0.7791,
+    "b": 0.0172
+  },
+  "soh_accuracy_real_cars_5fold_cv": {
+    "ageing_model": {
+      "mae": 2.29,
+      "r2": 0.367
+    },
+    "baseline_1.8pct_per_year": {
+      "mae": 2.65,
+      "r2": 0.189
+    },
+    "n_vehicles": 2742
+  },
+  "rul_accuracy_nasa_leave_one_cell_out": [
+    {
+      "held_out_cell": "B0005",
+      "beta_from_other_cells": 0.947,
+      "eol_cycles": 101,
+      "mae_rul_cycles": 118.1,
+      "mae_rul_cycles_soh_le_90": 8.7,
+      "mae_rul_cycles_soh_gt_90": 196.5,
+      "mae_pct_of_life": 116.9
+    },
+    {
+      "held_out_cell": "B0006",
+      "beta_from_other_cells": 1.201,
+      "eol_cycles": 61,
+      "mae_rul_cycles": 10.9,
+      "mae_rul_cycles_soh_le_90": 4.5,
+      "mae_rul_cycles_soh_gt_90": 16.9,
+      "mae_pct_of_life": 17.8
+    },
+    {
+      "held_out_cell": "B0018",
+      "beta_from_other_cells": 1.187,
+      "eol_cycles": 75,
+      "mae_rul_cycles": 12.4,
+      "mae_rul_cycles_soh_le_90": 7.9,
+      "mae_rul_cycles_soh_gt_90": 17.9,
+      "mae_pct_of_life": 16.6
+    }
+  ],
+  "rul_mean_mae_cycles": 47.1,
+  "rul_mean_mae_cycles_soh_le_90": 7.0,
+  "range_bands_vs_age": {
+    "q10": {
+      "intercept": -0.434,
+      "slope": -0.705
+    },
+    "q90": {
+      "intercept": 0.555,
+      "slope": 0.709
+    }
+  },
+  "range_coverage_target_80pct_cv": {
+    "overall_pct": 80.1,
+    "by_age_years_pct": {
+      "0-2": 69.7,
+      "2-4": 80.7,
+      "4-6": 80.5,
+      "6-8": 80.0,
+      "8+": 78.6
+    }
+  }
+}

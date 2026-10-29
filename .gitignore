@@ -1,0 +1,20 @@
+# secrets - API keys live only in backend/.env locally and in the host's settings online
+.env
+backend/.env
+
+# local Python environment and caches
+.venv/
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# data the app writes while running (accounts, readings, search log) - created again automatically
+backend/data/records.db
+backend/data/records.db-journal
+backend/data/search_log.jsonl
+
+# raw training data (large, not needed to run the app)
+backend/data/raw/
+
+.DS_Store

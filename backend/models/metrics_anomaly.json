@@ -1,0 +1,46 @@
+{
+  "dataset": "Zenodo real used battery-electric cars - 2,724 cars (age, odometer, measured health)",
+  "inputs": "Owner fields only: registration year, odometer, SOC + range shown; health reference = your own earlier readings (or the range when new, if known)",
+  "model": "Isolation Forest (300 trees, contamination 3%) on age, km per year and health from range",
+  "evaluation": "5-fold cross-validation over cars; faults injected into held-out cars",
+  "false_alarm_pct": 3.0,
+  "warning_pct_on_normal": 2.1,
+  "detection_pct": {
+    "Fast degradation (health -8 points)": 10.0,
+    "Severe degradation (health -15 points)": 62.4,
+    "Unusually heavy use (km per year x 2.5)": 37.8
+  },
+  "flagged_pct_warning_or_anomalous": {
+    "Fast degradation (health -8 points)": 25.0,
+    "Severe degradation (health -15 points)": 92.0,
+    "Unusually heavy use (km per year x 2.5)": 53.8
+  },
+  "usage_model": {
+    "features": "age, km per year (used on a first check, before a health reference exists)",
+    "false_alarm_pct": 3.1,
+    "heavy_use_detected_pct": 53.0
+  },
+  "status_rule": {
+    "anomalous": "Isolation Forest score < 0",
+    "warning": "score below the 5th percentile of normal training scores, the dashboard readings disagree by more than 15 %, the full-charge range fell more than 15 % below a reading from the last 90 days, or it declined more than 5 points faster than the ageing model expects since your first reading",
+    "normal": "otherwise"
+  },
+  "limitations": [
+    "Training health is a measured battery test; the owner's health comes from the dashboard range, which also depends on recent driving, temperature and AC use.",
+    "Trained on cars; 2- and 3-wheelers are checked against the same patterns (evidence: limited).",
+    "No real fault labels exist, so detection rates come from injected faults."
+  ],
+  "features": {
+    "age_years": "Vehicle age (years)",
+    "km_per_year": "Distance per year (km)",
+    "health_pct": "Battery health from range (%)"
+  },
+  "trip_check": {
+    "rule": "promised full-charge range = range shown at start / SOC at start; delivered = km ridden / SOC used; gap = (promised - delivered) / promised",
+    "normal": "gap up to 20 %",
+    "warning": "gap 20-35 %, or delivered more than 20 % above promised (unreliable estimate), or 2 of the last 3 trips over 20 %",
+    "anomalous": "gap over 35 %, or 2 of the last 3 trips over 35 %",
+    "valid_trip": "at least 10 % of battery used, same ride mode, no charging",
+    "calibration": "Design thresholds: no public dataset labels battery faults. EV_Predictive_Maintenance_Dataset_15min.csv was checked and rejected (SoC values are random from step to step and unrelated to distance)."
+  }
+}

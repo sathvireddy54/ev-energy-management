@@ -1,0 +1,17 @@
+# Render deployment (render.com, free plan). New -> Blueprint -> pick this repository; Render reads this file.
+services:
+  - type: web
+    name: ev-energy-management
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: OCM_API_KEY
+        sync: false          # Render asks for the value when the service is created
+      - key: TOMTOM_API_KEY
+        sync: false

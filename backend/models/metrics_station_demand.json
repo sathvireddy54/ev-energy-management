@@ -1,0 +1,31 @@
+{
+  "dataset": "City of Palo Alto ChargePoint sessions - per-port plug-in / plug-out times",
+  "method": "Per-port arrival rate (weekday x hour) and how long cars stay plugged in, learned from data; occupancy carried over from earlier arrivals; M/M/c queue (Erlang C) per station",
+  "train_year": 2018,
+  "test_year": 2019,
+  "stations_tested": 33,
+  "station_hour_slots": 5544,
+  "busy_points_mae": 0.176,
+  "busy_points_mae_baseline_average": 0.325,
+  "busy_points_correlation": 0.778,
+  "p_all_busy_mae": 0.086,
+  "p_all_busy_mae_baseline_average": 0.127,
+  "mean_observed_p_all_busy": 0.104,
+  "mean_predicted_p_all_busy": 0.106,
+  "busiest_slot_observed": {
+    "weekday": 2,
+    "hour": 12
+  },
+  "busiest_slot_predicted": {
+    "weekday": 3,
+    "hour": 13
+  },
+  "mean_connected_hours": 2.25,
+  "energy_kwh_median": 7.0,
+  "limitations": [
+    "Learned from Palo Alto Level 1/2 AC chargers; applied to other cities and to DC fast chargers by assumption.",
+    "DC fast-charger session length is estimated from energy per session and charger power, not observed.",
+    "No live occupancy: predictions describe a typical day at that weekday and hour.",
+    "Observed data only contains drivers who found a free port, so real queues may be under-counted."
+  ]
+}

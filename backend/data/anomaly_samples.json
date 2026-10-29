@@ -1,0 +1,120 @@
+[
+ {
+  "id": "trip-ok",
+  "label": "Normal trip (2-wheeler)",
+  "input": {
+   "vehicle_type": "2W",
+   "registration_year": 2024,
+   "odometer_km": 17500,
+   "km_per_year": 9000,
+   "readings": [
+    {
+     "soc_pct": 80,
+     "range_km": 90
+    }
+   ]
+  },
+  "trip": {
+   "soc_start": 80,
+   "range_start_km": 90,
+   "soc_end": 60,
+   "distance_km": 22,
+   "ride_mode": "Eco"
+  }
+ },
+ {
+  "id": "trip-bad",
+  "label": "Battery draining fast (2-wheeler)",
+  "input": {
+   "vehicle_type": "2W",
+   "registration_year": 2024,
+   "odometer_km": 17500,
+   "km_per_year": 9000,
+   "readings": [
+    {
+     "soc_pct": 80,
+     "range_km": 90
+    }
+   ]
+  },
+  "trip": {
+   "soc_start": 80,
+   "range_start_km": 90,
+   "soc_end": 60,
+   "distance_km": 12,
+   "ride_mode": "Eco"
+  }
+ },
+ {
+  "id": "typical",
+  "label": "Typical car: 4 years, 14,000 km/yr",
+  "input": {
+   "vehicle_type": "4W",
+   "registration_year": 2022,
+   "odometer_km": 56000,
+   "km_per_year": 14000,
+   "readings": [
+    {
+     "soc_pct": 80,
+     "range_km": 232
+    }
+   ],
+   "new_full_range_km": 312
+  }
+ },
+ {
+  "id": "fast",
+  "label": "Range dropped a lot: 3 years",
+  "input": {
+   "vehicle_type": "4W",
+   "registration_year": 2023,
+   "odometer_km": 36000,
+   "km_per_year": 12000,
+   "readings": [
+    {
+     "soc_pct": 90,
+     "range_km": 205
+    }
+   ],
+   "new_full_range_km": 312
+  }
+ },
+ {
+  "id": "heavy",
+  "label": "Very heavy use: 120,000 km in 2 years",
+  "input": {
+   "vehicle_type": "4W",
+   "registration_year": 2024,
+   "odometer_km": 120000,
+   "km_per_year": 60000,
+   "readings": [
+    {
+     "soc_pct": 100,
+     "range_km": 290
+    }
+   ],
+   "new_full_range_km": 312
+  }
+ },
+ {
+  "id": "inconsistent",
+  "label": "Readings disagree (2-wheeler)",
+  "input": {
+   "vehicle_type": "2W",
+   "registration_year": 2023,
+   "odometer_km": 21000,
+   "km_per_year": 7000,
+   "readings": [
+    {
+     "soc_pct": 90,
+     "range_km": 130
+    },
+    {
+     "soc_pct": 50,
+     "range_km": 40
+    }
+   ],
+   "new_full_range_km": 150
+  }
+ }
+]
