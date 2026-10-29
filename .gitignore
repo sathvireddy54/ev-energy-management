@@ -12,6 +12,8 @@ __pycache__/
 # data the app writes while running (accounts, readings, search log) - created again automatically
 backend/data/records.db
 backend/data/records.db-journal
+backend/data/records.db-wal
+backend/data/records.db-shm
 backend/data/search_log.jsonl
 
 # raw training data (large, not needed to run the app)

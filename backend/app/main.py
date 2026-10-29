@@ -234,6 +234,9 @@ _OCM_CACHE = {}
 OCM_CACHE_S = 300           # station details change rarely; reuse them for 5 minutes (live data is not cached here)
 
 
+OSM_WAIT_S = 3.0
+
+
 def _raw_stations(latitude, longitude, distance_km, max_results):
     key = (round(latitude, 4), round(longitude, 4), float(distance_km), max_results)
     hit = _OCM_CACHE.get(key)
@@ -243,8 +246,12 @@ def _raw_stations(latitude, longitude, distance_km, max_results):
         return hit[1]
     # two free station sources, asked at the same time: Open Charge Map + OpenStreetMap
     # (duplicates within 120 m count once)
-    from concurrent.futures import ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=3) as pool:
+    # OpenStreetMap (Overpass) is often slow (5-10 s, sometimes far more) and adds only a few stations, so the search
+    # waits for it at most OSM_WAIT_S; a late answer is still cached for the next search of this area.
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+    pool = ThreadPoolExecutor(max_workers=3)
+    try:
+        t0 = time.time()
         f_ocm = pool.submit(get_nearby_stations, latitude=latitude, longitude=longitude,
                             distance_km=distance_km, max_results=max_results)
         f_osm = pool.submit(osm_service.fetch, latitude, longitude, distance_km)
@@ -256,8 +263,13 @@ def _raw_stations(latitude, longitude, distance_km, max_results):
             _bad(exc)
         except OCMServiceError as exc:
             data, ocm_error = [], str(exc)
-        osm, osm_error = f_osm.result()
         tt, tt_error = f_tt.result()
+        try:
+            osm, osm_error = f_osm.result(timeout=max(0.2, OSM_WAIT_S - (time.time() - t0)))
+        except FutureTimeout:
+            osm, osm_error = [], None                 # still loading - used from its cache next time
+    finally:
+        pool.shutdown(wait=False)
     _log("stations", tomtom=len(tt), tomtom_error=tt_error, lat=round(latitude, 5), lon=round(longitude, 5), radius_km=distance_km,
          open_charge_map=len(data), open_charge_map_error=ocm_error, openstreetmap=len(osm),
          openstreetmap_error=osm_error, openstreetmap_status=osm_service.status(),

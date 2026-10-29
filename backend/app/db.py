@@ -19,6 +19,7 @@ URL = (os.getenv("DATABASE_URL") or "").strip()
 _pool = None
 _pool_lock = threading.Lock()
 _ddl_done = set()
+_wal = set()
 
 
 def using_postgres():
@@ -31,6 +32,12 @@ def connect(path):
     if not URL:
         c = sqlite3.connect(path)
         c.row_factory = sqlite3.Row
+        if path not in _wal:                       # write-ahead log: readers don't wait for writers (once per file)
+            try:
+                c.execute("PRAGMA journal_mode=WAL")
+                _wal.add(path)
+            except sqlite3.Error:
+                pass
         return c
     return _PgConn(_get_pool())
 

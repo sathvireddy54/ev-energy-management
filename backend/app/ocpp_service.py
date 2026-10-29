@@ -38,6 +38,7 @@ def _now():
 def _conn():
     c = sqlite3.connect(DB)
     c.row_factory = sqlite3.Row
+    c.execute("PRAGMA synchronous=OFF")      # charger-feed data is rebuilt on every start: speed over durability
     c.execute("""CREATE TABLE IF NOT EXISTS ocpp_chargers (
         cp_id TEXT PRIMARY KEY, station_id TEXT, vendor TEXT, model TEXT, booted_utc TEXT,
         last_seen_utc TEXT, connected INTEGER DEFAULT 0)""")
