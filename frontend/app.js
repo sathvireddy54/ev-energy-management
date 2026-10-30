@@ -680,14 +680,15 @@ function stArea(s) {
 }
 const dayLabel = (d) => { const t = new Date(d.date + "T00:00:00"); return isNaN(t) ? `${d.weekday} ${d.date}` : t.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); };
 // ---------------------------------------------------------------- demand at stations near you
-let sdCoords = null;
+let sdCoords = null, sdTyped = "";
 const COMPAT = { compatible: ["good", "Compatible"], check: ["warning", "Check connector"], unknown: ["neutral", "Connector unknown"], not_compatible: ["critical", "Not compatible"] };
 function drawStationDemand() {
   const r0 = cache.stationDemand; if (!r0) return;
   const fits = r0.stations.filter((s) => s.compatibility !== "not_compatible");     // only stations the vehicle can use
   const r = { ...r0, stations: fits, station_count: fits.length };
   const st = showAll.demand ? r.stations : r.stations.slice(0, NEAREST_N), fh = r.focus_hour;
-  const near = /current location/i.test(r.inputs.location) ? "Stations nearby" : `Stations near ${esc(r.inputs.location.split(",")[0])}`;
+  const placeName = (sdTyped && !/current location/i.test(sdTyped) ? sdTyped : r.inputs.location).split(",")[0].trim();
+  const near = /current location/i.test(r.inputs.location) ? "Stations nearby" : `Stations near ${esc(placeName)}`;
   const area = stArea;
   if (!st.length) { $("sd-result").innerHTML = `<div class="card"><div class="alert warning"><span class="ico">!</span><span>No stations found here. Try a larger radius.</span></div></div>`; $("sd-result").hidden = false; return; }
   const all = st.flatMap((s) => s.profile.map((x) => x.utilisation_pct)), mx = Math.max(...all, 1);
@@ -741,7 +742,7 @@ async function submitStationDemand(e) {
   else if (q.length >= 2) p.set("q", q);
   else { $("sd-err").textContent = "Enter a place, area or address (or use ◎ for your location)."; return; }
   btn.disabled = true; btn.textContent = "Loading…";
-  try { lastQ.demand = "/api/demand/stations?" + p; cache.stationDemand = await api(lastQ.demand); lastAt.demand = Date.now(); drawStationDemand(); }
+  try { lastQ.demand = "/api/demand/stations?" + p; sdTyped = q; cache.stationDemand = await api(lastQ.demand); lastAt.demand = Date.now(); drawStationDemand(); }
   catch (err) { $("sd-err").textContent = err.message; }
   finally { btn.disabled = false; btn.textContent = "Show demand"; }
 }
@@ -998,6 +999,8 @@ async function loadAdaptive() {
 function adaptiveTile() {
   const a = cache.adaptive;
   if (!a) return `<div class="k">Adaptive learning</div><div class="v">–</div>`;
+  if (!a.observations) return `<div class="k">Adaptive learning</div><div class="v">0 <small>driver reports</small></div>
+    <div class="r">Report a station in <a href="#stations">Station finder</a> to start learning</div>`;
   return `<div class="k">Adaptive learning</div><div class="v">${fmt(a.observations)} <small>driver reports</small></div>
     <div class="r">${fmt(a.stations_calibrated)} station${a.stations_calibrated === 1 ? "" : "s"} learned</div>`;
 }
